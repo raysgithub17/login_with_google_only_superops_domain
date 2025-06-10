@@ -15,7 +15,7 @@ export default function AuthComponent() {
         } = await supabase.auth.getUser();
         if (user && !isSuperopsEmail(user.email)) {
           setError(
-            "Login failed: Only @superops.com email addresses are allowed. Please use your Superops email to sign in."
+            "❌ Only @superops.com email addresses are allowed. Please use your Superops email to sign in."
           );
           await supabase.auth.signOut();
         }
@@ -35,11 +35,13 @@ export default function AuthComponent() {
         } = await supabase.auth.getUser();
         if (!isSuperopsEmail(user.email)) {
           setError(
-            "Login failed: Only @superops.com email addresses are allowed. Please use your Superops email to sign in."
+            "❌ Only @superops.com email addresses are allowed. Please use your Superops email to sign in."
           );
           await supabase.auth.signOut();
           return;
         }
+      } else if (event === "SIGNED_OUT") {
+        setError(null); // Clear error on sign out
       }
     } catch (error) {
       console.error("Error in auth state change:", error);
@@ -49,10 +51,6 @@ export default function AuthComponent() {
 
   return (
     <div className="auth-container">
-      <div className="domain-notice">
-        <p>⚠️ Please use your @superops.com email address to sign in</p>
-      </div>
-      {error && <div className="error-message">{error}</div>}
       <Auth
         supabaseClient={supabase}
         appearance={{ theme: ThemeSupa }}
@@ -64,6 +62,14 @@ export default function AuthComponent() {
         theme="dark"
         onAuthStateChange={handleAuthStateChange}
       />
+      {error && (
+        <div
+          className="domain-notice error-message"
+          style={{ marginTop: "1.5rem" }}
+        >
+          <p>{error}</p>
+        </div>
+      )}
     </div>
   );
 }
